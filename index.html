@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Wi-Fi Voucher Claiming System</title>
+
+  <script src="https://accounts.google.com/gsi/client"
+          async
+          defer></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: auto;
+    }
+
+    .card {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 25px;
+    }
+
+    .login {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    #result {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .success {
+      background: #e6f4ea;
+      color: #137333;
+    }
+
+    .error {
+      background: #fce8e6;
+      color: #c5221f;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="card">
+
+    <h1>Wi-Fi Voucher Claiming System</h1>
+
+    <div class="subtitle">
+      Please sign in using your Google account.
+    </div>
+
+    <!-- Google Sign-In -->
+    <div class="login">
+
+      <div id="g_id_onload"
+           data-client_id="246226290725-09mch4s4736vbd1m80qsdr89ms4f95ha.apps.googleusercontent.com"
+           data-callback="handleGoogleCredential"
+           data-auto_prompt="false">
+      </div>
+
+      <div class="g_id_signin"
+           data-type="standard"
+           data-size="large"
+           data-theme="outline"
+           data-text="sign_in_with"
+           data-shape="rectangular"
+           data-logo_alignment="left">
+      </div>
+
+    </div>
+
+    <div id="result"></div>
+
+  </div>
+
+</div>
+
+
+<script>
+
+  let googleCredential = null;
+
+
+  function handleGoogleCredential(response) {
+
+    googleCredential = response.credential;
+
+    showResult(
+      "Google account successfully verified. Your account is ready for voucher claiming.",
+      "success"
+    );
+
+    console.log("Google ID token received.");
+
+  }
+
+
+  function showResult(message, type) {
+
+    const result = document.getElementById("result");
+
+    result.textContent = message;
+
+    result.className = type;
+
+    result.style.display = "block";
+
+  }
+
+</script>
+
+</body>
+</html>
