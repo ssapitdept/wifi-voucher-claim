@@ -106,21 +106,135 @@
 
 <script>
 
-  let googleCredential = null;
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwChbGU-uAf_10ybS2bh3KbBCXLkhM5BE6Xi75RyklPAUP2lb3peoe7GxnTCinrF-_C5g/exec";
+
+let googleCredential = null;
+
+function handleGoogleCredential(response) {
+
+  googleCredential = response.credential;
+
+  showResult(
+    "Google account signed in. Verifying your account...",
+    "success"
+  );
+
+  console.log("Google ID token received.");
+
+  verifyWithAppsScript(googleCredential);
+}
 
 
-  function handleGoogleCredential(response) {
+async function verifyWithAppsScript(idToken) {
 
-    googleCredential = response.credential;
+  try {
+
+    const response = await fetch(APPS_SCRIPT_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8"
+      },
+      body: JSON.stringify({
+        idToken: idToken
+      })
+    });
+
+    const result = await response.json();
+
+    console.log("Apps Script response:", result);
+
+    if (!result.success) {
+
+      showResult(
+        result.message || "Google account verification failed.",
+        "error"
+      );
+
+      return;
+    }
 
     showResult(
       "Google account successfully verified. Your account is ready for voucher claiming.",
       "success"
     );
 
-    console.log("Google ID token received.");
+    console.log("Verified Google email:", result.email);
 
+  } catch (error) {
+
+    console.error("Backend connection error:", error);
+
+    showResult(
+      "Unable to connect to the Wi-Fi Voucher System. Please try again.",
+      "error"
+    );
   }
+}
+
+
+function showResult(message, type) {
+
+  const result = document.getElementById("result");
+
+  result.textContent = message;
+  result.className = type;
+  result.style.display = "block";
+}
+
+  // Send the Google ID token to Apps Script
+  // for server-side verification.
+  fetch(
+    "YOUR_APPS_SCRIPT_WEB_APP_URL",
+    {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json"
+      },
+
+      body: JSON.stringify({
+        idToken: googleCredential
+      })
+    }
+  )
+  .then(function(response) {
+    return response.json();
+  })
+  .then(function(result) {
+
+    console.log("Apps Script response:", result);
+
+
+    if (result.success) {
+
+      showResult(
+        "Google account successfully verified: " +
+        result.email,
+        "success"
+      );
+
+    } else {
+
+      showResult(
+        result.message,
+        "error"
+      );
+
+    }
+
+  })
+  .catch(function(error) {
+
+    console.error(error);
+
+    showResult(
+      "Unable to connect to the voucher system.",
+      "error"
+    );
+
+  });
+
+}
 
 
   function showResult(message, type) {
