@@ -1,140 +1,675 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Wi-Fi Voucher Claiming System</title>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
-  <script src="https://accounts.google.com/gsi/client"
-          async
-          defer></script>
+  <title>
+    Wi-Fi Voucher Claiming System
+  </title>
+
+
+  <!-- Google Identity Services -->
+  <script
+    src="https://accounts.google.com/gsi/client"
+    async
+    defer>
+  </script>
+
 
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f8;
-      margin: 0;
-      padding: 40px 20px;
+
+    * {
+      box-sizing: border-box;
     }
+
+
+    body {
+
+      font-family:
+        Arial,
+        sans-serif;
+
+      background:
+        #f4f6f8;
+
+      margin:
+        0;
+
+      padding:
+        40px 20px;
+
+      color:
+        #202124;
+
+    }
+
 
     .container {
-      max-width: 500px;
-      margin: auto;
+
+      max-width:
+        500px;
+
+      margin:
+        0 auto;
+
     }
+
 
     .card {
-      background: #ffffff;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+
+      background:
+        #ffffff;
+
+      padding:
+        30px;
+
+      border-radius:
+        12px;
+
+      box-shadow:
+        0 4px 15px
+        rgba(
+          0,
+          0,
+          0,
+          0.08
+        );
+
     }
+
 
     h1 {
-      text-align: center;
-      margin-bottom: 10px;
+
+      text-align:
+        center;
+
+      margin:
+        0 0 10px 0;
+
+      font-size:
+        26px;
+
     }
+
 
     .subtitle {
-      text-align: center;
-      color: #666;
-      margin-bottom: 25px;
+
+      text-align:
+        center;
+
+      color:
+        #666;
+
+      margin-bottom:
+        30px;
+
+      line-height:
+        1.5;
+
     }
+
 
     .login {
-      text-align: center;
-      margin-bottom: 25px;
+
+      display:
+        flex;
+
+      justify-content:
+        center;
+
+      margin:
+        25px 0;
+
     }
 
-    #result {
-      margin-top: 20px;
-      padding: 15px;
-      border-radius: 8px;
-      display: none;
+
+    #status {
+
+      margin-top:
+        20px;
+
+      padding:
+        15px;
+
+      border-radius:
+        8px;
+
+      display:
+        none;
+
+      line-height:
+        1.5;
+
+      white-space:
+        pre-line;
+
     }
+
 
     .success {
-      background: #e6f4ea;
-      color: #137333;
+
+      background:
+        #e6f4ea;
+
+      color:
+        #137333;
+
     }
+
 
     .error {
-      background: #fce8e6;
-      color: #c5221f;
+
+      background:
+        #fce8e6;
+
+      color:
+        #c5221f;
+
     }
+
+
+    .loading {
+
+      background:
+        #e8f0fe;
+
+      color:
+        #174ea6;
+
+    }
+
+
+    #claimSection {
+
+      display:
+        none;
+
+      margin-top:
+        25px;
+
+    }
+
+
+    .account {
+
+      background:
+        #f1f3f4;
+
+      padding:
+        12px;
+
+      border-radius:
+        8px;
+
+      margin-bottom:
+        20px;
+
+      font-size:
+        14px;
+
+      word-break:
+        break-word;
+
+    }
+
+
+    label {
+
+      display:
+        block;
+
+      margin-top:
+        15px;
+
+      margin-bottom:
+        6px;
+
+      font-weight:
+        bold;
+
+    }
+
+
+    input {
+
+      width:
+        100%;
+
+      padding:
+        12px;
+
+      border:
+        1px solid #ccc;
+
+      border-radius:
+        7px;
+
+      font-size:
+        15px;
+
+    }
+
+
+    input:focus {
+
+      outline:
+        none;
+
+      border-color:
+        #1a73e8;
+
+    }
+
+
+    button {
+
+      width:
+        100%;
+
+      padding:
+        13px;
+
+      margin-top:
+        25px;
+
+      border:
+        none;
+
+      border-radius:
+        7px;
+
+      background:
+        #1a73e8;
+
+      color:
+        white;
+
+      font-size:
+        16px;
+
+      font-weight:
+        bold;
+
+      cursor:
+        pointer;
+
+    }
+
+
+    button:hover {
+
+      opacity:
+        0.9;
+
+    }
+
+
+    button:disabled {
+
+      opacity:
+        0.6;
+
+      cursor:
+        not-allowed;
+
+    }
+
+
+    #vouchers {
+
+      display:
+        none;
+
+      margin-top:
+        25px;
+
+      padding:
+        18px;
+
+      background:
+        #e8f0fe;
+
+      border-radius:
+        8px;
+
+    }
+
+
+    .voucher {
+
+      background:
+        white;
+
+      padding:
+        14px;
+
+      margin-top:
+        10px;
+
+      border-radius:
+        6px;
+
+      text-align:
+        center;
+
+      font-family:
+        monospace;
+
+      font-size:
+        19px;
+
+      font-weight:
+        bold;
+
+      letter-spacing:
+        1px;
+
+    }
+
+
+    .note {
+
+      margin-top:
+        15px;
+
+      color:
+        #666;
+
+      font-size:
+        13px;
+
+      line-height:
+        1.5;
+
+    }
+
+
+    .footer {
+
+      text-align:
+        center;
+
+      margin-top:
+        20px;
+
+      color:
+        #777;
+
+      font-size:
+        12px;
+
+    }
+
   </style>
+
 </head>
 
+
 <body>
+
 
 <div class="container">
 
   <div class="card">
 
-    <h1>Wi-Fi Voucher Claiming System</h1>
+
+    <h1>
+      Wi-Fi Voucher Claiming System
+    </h1>
+
 
     <div class="subtitle">
-      Please sign in using your Google account.
-    </div>
 
-    <!-- Google Sign-In -->
-    <div class="login">
-
-      <div id="g_id_onload"
-           data-client_id="246226290725-09mch4s4736vbd1m80qsdr89ms4f95ha.apps.googleusercontent.com"
-           data-callback="handleGoogleCredential"
-           data-auto_prompt="false">
-      </div>
-
-      <div class="g_id_signin"
-           data-type="standard"
-           data-size="large"
-           data-theme="outline"
-           data-text="sign_in_with"
-           data-shape="rectangular"
-           data-logo_alignment="left">
-      </div>
+      Please sign in using your Google account
+      to continue.
 
     </div>
 
-    <div id="result"></div>
+
+    <!-- =========================================
+         GOOGLE SIGN-IN
+         ========================================= -->
+
+    <div
+      class="login"
+      id="googleLogin"
+    >
+
+      <div
+        id="g_id_onload"
+
+        data-client_id="246226290725-09mch4s4736vbd1m80qsdr89ms4f95ha.apps.googleusercontent.com"
+
+        data-callback="handleGoogleCredential"
+
+        data-auto_prompt="false"
+      >
+      </div>
+
+
+      <div
+        class="g_id_signin"
+
+        data-type="standard"
+
+        data-size="large"
+
+        data-theme="outline"
+
+        data-text="sign_in_with"
+
+        data-shape="rectangular"
+
+        data-logo_alignment="left"
+      >
+      </div>
+
+    </div>
+
+
+    <!-- =========================================
+         STATUS
+         ========================================= -->
+
+    <div
+      id="status"
+    >
+    </div>
+
+
+    <!-- =========================================
+         CLAIM SECTION
+         ========================================= -->
+
+    <div
+      id="claimSection"
+    >
+
+
+      <div
+        class="account"
+      >
+
+        Signed in as:
+
+        <strong
+          id="verifiedEmail"
+        >
+        </strong>
+
+      </div>
+
+
+      <label
+        for="fullName"
+      >
+        Full Name
+      </label>
+
+
+      <input
+        type="text"
+
+        id="fullName"
+
+        placeholder="Enter your full name"
+
+        autocomplete="name"
+      >
+
+
+      <label
+        for="employeeId"
+      >
+        Employee ID
+      </label>
+
+
+      <input
+        type="text"
+
+        id="employeeId"
+
+        placeholder="Enter your Employee ID"
+      >
+
+
+      <button
+        id="claimButton"
+
+        type="button"
+
+        onclick="submitClaim()"
+      >
+
+        Claim My 2 Wi-Fi Vouchers
+
+      </button>
+
+
+    </div>
+
+
+    <!-- =========================================
+         VOUCHERS
+         ========================================= -->
+
+    <div
+      id="vouchers"
+    >
+
+      <strong>
+        Your Wi-Fi Vouchers
+      </strong>
+
+
+      <div
+        id="voucher1"
+        class="voucher"
+      >
+      </div>
+
+
+      <div
+        id="voucher2"
+        class="voucher"
+      >
+      </div>
+
+
+      <div
+        class="note"
+      >
+
+        A confirmation email containing these
+        voucher codes has also been sent to your
+        verified Google account.
+
+        <br><br>
+
+        Please keep your voucher codes
+        confidential.
+
+      </div>
+
+    </div>
+
+
+    <div
+      class="footer"
+    >
+
+      IT Office — Wi-Fi Voucher System
+
+    </div>
+
 
   </div>
 
 </div>
 
 
+
 <script>
+
+
+/**************************************************
+ * APPS SCRIPT WEB APP
+ **************************************************/
 
 const APPS_SCRIPT_URL =
   "https://script.google.com/macros/s/AKfycbwChbGU-uAf_10ybS2bh3KbBCXLkhM5BE6Xi75RyklPAUP2lb3peoe7GxnTCinrF-_C5g/exec";
 
 
-let googleCredential = null;
+
+/**************************************************
+ * SESSION VARIABLES
+ **************************************************/
+
+let sessionId =
+  null;
 
 
-/*
- * Google Sign-In callback
- */
-function handleGoogleCredential(response) {
+let verifiedEmail =
+  null;
+
+
+
+/**************************************************
+ * GOOGLE SIGN-IN CALLBACK
+ **************************************************/
+
+function handleGoogleCredential(
+  response
+) {
 
   console.log(
     "Google Sign-In callback fired."
   );
 
 
-  googleCredential =
-    response.credential;
+  if (
+    !response ||
+    !response.credential
+  ) {
 
+    showStatus(
 
-  if (!googleCredential) {
+      "Google Sign-In did not return an ID token.",
 
-    showResult(
-      "Google Sign-In was completed, but no authentication token was received.",
       "error"
+
     );
 
     return;
+
   }
 
 
@@ -143,67 +678,75 @@ function handleGoogleCredential(response) {
   );
 
 
-  showResult(
-    "Google account signed in. Verifying your account...",
-    "success"
-  );
+  showStatus(
 
+    "Google account received. Verifying your account...",
 
-  verifyGoogleAccount(
-    googleCredential
-  );
+    "loading"
 
-}
-
-
-/*
- * Verify Google account through
- * Apps Script JSONP.
- */
-function verifyGoogleAccount(
-  idToken
-) {
-
-  console.log(
-    "Starting Google account verification..."
   );
 
 
   /*
-   * Create a unique callback name.
+   * Send the ID token to Apps Script.
    */
-  const callbackName =
-    "googleVerificationCallback_" +
-    Date.now();
+  fetch(
+
+    APPS_SCRIPT_URL,
+
+    {
+
+      method:
+        "POST",
+
+      headers:
+        {
+          "Content-Type":
+            "text/plain;charset=utf-8"
+        },
+
+      body:
+        JSON.stringify({
+
+          action:
+            "verifyGoogle",
+
+          idToken:
+            response.credential
+
+        })
+
+    }
+
+  )
+
+  .then(
+    function(response) {
+
+      if (
+        !response.ok
+      ) {
+
+        throw new Error(
+          "Server returned HTTP " +
+          response.status
+        );
+
+      }
 
 
-  /*
-   * Create the callback function
-   * on the GitHub page.
-   */
-  window[callbackName] =
+      return response.json();
+
+    }
+  )
+
+  .then(
     function(result) {
 
       console.log(
-        "Apps Script verification result:",
+        "Apps Script verification:",
         result
       );
-
-
-      /*
-       * Remove the temporary callback.
-       */
-      delete window[callbackName];
-
-
-      /*
-       * Remove the script element.
-       */
-      if (scriptElement) {
-
-        scriptElement.remove();
-
-      }
 
 
       if (
@@ -211,7 +754,7 @@ function verifyGoogleAccount(
         !result.success
       ) {
 
-        showResult(
+        showStatus(
 
           result &&
           result.message
@@ -230,11 +773,276 @@ function verifyGoogleAccount(
 
 
       /*
-       * Verification succeeded.
+       * Save server-created session.
        */
-      showResult(
+      sessionId =
+        result.sessionId;
 
-        "Google account successfully verified. Your account is ready for voucher claiming.",
+
+      verifiedEmail =
+        result.email;
+
+
+      /*
+       * Display verified email.
+       */
+      document.getElementById(
+        "verifiedEmail"
+      ).textContent =
+        verifiedEmail;
+
+
+      /*
+       * Hide Google Sign-In.
+       */
+      document.getElementById(
+        "googleLogin"
+      ).style.display =
+        "none";
+
+
+      /*
+       * Show claim form.
+       */
+      document.getElementById(
+        "claimSection"
+      ).style.display =
+        "block";
+
+
+      showStatus(
+
+        "Google account successfully verified.\n\nPlease enter your Full Name and Employee ID.",
+
+        "success"
+
+      );
+
+    }
+
+  )
+
+  .catch(
+    function(error) {
+
+      console.error(
+        "Backend connection error:",
+        error
+      );
+
+
+      showStatus(
+
+        "Unable to connect to the Wi-Fi Voucher System.\n\nPlease try again.",
+
+        "error"
+
+      );
+
+    }
+  );
+
+}
+
+
+
+/**************************************************
+ * SUBMIT VOUCHER CLAIM
+ **************************************************/
+
+function submitClaim() {
+
+
+  const fullName =
+    document.getElementById(
+      "fullName"
+    ).value.trim();
+
+
+  const employeeId =
+    document.getElementById(
+      "employeeId"
+    ).value.trim();
+
+
+  const button =
+    document.getElementById(
+      "claimButton"
+    );
+
+
+  /*
+   * Basic validation.
+   */
+
+  if (!fullName) {
+
+    showStatus(
+      "Please enter your Full Name.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  if (!employeeId) {
+
+    showStatus(
+      "Please enter your Employee ID.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  if (!sessionId) {
+
+    showStatus(
+
+      "Your Google login session is missing. Please sign in again.",
+
+      "error"
+
+    );
+
+    return;
+
+  }
+
+
+  /*
+   * Disable button to prevent
+   * accidental double-click.
+   */
+
+  button.disabled =
+    true;
+
+
+  button.textContent =
+    "Processing...";
+
+
+  showStatus(
+
+    "Verifying your information and assigning your 2 vouchers...",
+
+    "loading"
+
+  );
+
+
+  /*
+   * Send claim request.
+   */
+
+  fetch(
+
+    APPS_SCRIPT_URL,
+
+    {
+
+      method:
+        "POST",
+
+      headers:
+        {
+          "Content-Type":
+            "text/plain;charset=utf-8"
+        },
+
+      body:
+        JSON.stringify({
+
+          action:
+            "claimVouchers",
+
+          sessionId:
+            sessionId,
+
+          fullName:
+            fullName,
+
+          employeeId:
+            employeeId
+
+        })
+
+    }
+
+  )
+
+  .then(
+    function(response) {
+
+      if (
+        !response.ok
+      ) {
+
+        throw new Error(
+          "Server returned HTTP " +
+          response.status
+        );
+
+      }
+
+
+      return response.json();
+
+    }
+  )
+
+  .then(
+    function(result) {
+
+      console.log(
+        "Voucher claim result:",
+        result
+      );
+
+
+      button.disabled =
+        false;
+
+
+      button.textContent =
+        "Claim My 2 Wi-Fi Vouchers";
+
+
+      if (
+        !result ||
+        !result.success
+      ) {
+
+        showStatus(
+
+          result &&
+          result.message
+
+            ? result.message
+
+            : "Unable to complete your claim.",
+
+          "error"
+
+        );
+
+        return;
+
+      }
+
+
+      /*
+       * SUCCESS
+       */
+
+      showStatus(
+
+        "Voucher claim successful!\n\nTwo Wi-Fi vouchers have been assigned to you.",
 
         "success"
 
@@ -242,105 +1050,109 @@ function verifyGoogleAccount(
 
 
       /*
-       * Keep verified account information
-       * available for the next step.
+       * Display vouchers.
        */
-      window.verifiedGoogleAccount =
-        result;
+
+      document.getElementById(
+        "voucher1"
+      ).textContent =
+        result.vouchers[0];
 
 
-      console.log(
-        "Verified Google email:",
-        result.email
-      );
-
-    };
+      document.getElementById(
+        "voucher2"
+      ).textContent =
+        result.vouchers[1];
 
 
-  /*
-   * Create script element.
-   *
-   * JSONP works because the browser permits
-   * cross-origin <script> loading.
-   */
-  const scriptElement =
-    document.createElement("script");
+      document.getElementById(
+        "vouchers"
+      ).style.display =
+        "block";
 
 
-  scriptElement.src =
-    APPS_SCRIPT_URL +
-    "?action=verify" +
-    "&token=" +
-    encodeURIComponent(idToken) +
-    "&callback=" +
-    encodeURIComponent(callbackName);
+      /*
+       * Hide claim form.
+       */
+      document.getElementById(
+        "claimSection"
+      ).style.display =
+        "none";
 
 
-  /*
-   * Handle connection failure.
-   */
-  scriptElement.onerror =
-    function() {
+      /*
+       * Clear session from browser memory.
+       */
+      sessionId =
+        null;
+
+    }
+
+  )
+
+  .catch(
+    function(error) {
 
       console.error(
-        "Unable to load Apps Script verification endpoint."
+        "Claim request error:",
+        error
       );
 
 
-      delete window[callbackName];
+      button.disabled =
+        false;
 
 
-      showResult(
-        "Unable to connect to the Wi-Fi Voucher System. Please try again.",
+      button.textContent =
+        "Claim My 2 Wi-Fi Vouchers";
+
+
+      showStatus(
+
+        "Unable to connect to the Wi-Fi Voucher System.\n\nPlease try again.",
+
         "error"
+
       );
 
-
-      scriptElement.remove();
-
-    };
-
-
-  document.body.appendChild(
-    scriptElement
-  );
-
-
-  console.log(
-    "Apps Script verification request sent."
+    }
   );
 
 }
 
 
-/*
- * Display notification.
- */
-function showResult(
+
+/**************************************************
+ * DISPLAY STATUS
+ **************************************************/
+
+function showStatus(
   message,
   type
 ) {
 
-  const result =
+  const status =
     document.getElementById(
-      "result"
+      "status"
     );
 
 
-  result.textContent =
+  status.textContent =
     message;
 
 
-  result.className =
+  status.className =
     type;
 
 
-  result.style.display =
+  status.style.display =
     "block";
 
 }
 
 </script>
 
+
 </body>
+
 </html>
