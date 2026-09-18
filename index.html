@@ -112,8 +112,6 @@ const APPS_SCRIPT_URL =
 
 let googleCredential = null;
 
-let bridgeFrame = null;
-
 
 /*
  * Google Sign-In callback
@@ -137,7 +135,6 @@ function handleGoogleCredential(response) {
     );
 
     return;
-
   }
 
 
@@ -152,152 +149,168 @@ function handleGoogleCredential(response) {
   );
 
 
-  /*
-   * Create a fresh hidden iframe.
-   *
-   * The Google token is sent to Apps Script
-   * through the URL rather than postMessage.
-   */
-  if (bridgeFrame) {
-
-    bridgeFrame.remove();
-
-  }
-
-
-  bridgeFrame =
-    document.createElement("iframe");
-
-
-  bridgeFrame.style.display =
-    "none";
-
-
-  bridgeFrame.src =
-    APPS_SCRIPT_URL +
-    "?action=verify&token=" +
-    encodeURIComponent(
-      googleCredential
-    );
-
-
-  document.body.appendChild(
-    bridgeFrame
-  );
-
-
-  console.log(
-    "Verification bridge requested."
+  verifyGoogleAccount(
+    googleCredential
   );
 
 }
 
 
 /*
- * Receive the verification result
- * from the Apps Script iframe.
+ * Verify Google account through
+ * Apps Script JSONP.
  */
-window.addEventListener(
-  "message",
-  function(event) {
+function verifyGoogleAccount(
+  idToken
+) {
 
-    console.log(
-      "Message received from:",
-      event.origin
-    );
+  console.log(
+    "Starting Google account verification..."
+  );
 
 
-    /*
-     * Apps Script HTML runs under a
-     * googleusercontent.com sandbox origin.
-     */
-    if (
-      !event.origin.endsWith(
-        "-script.googleusercontent.com"
-      )
-    ) {
+  /*
+   * Create a unique callback name.
+   */
+  const callbackName =
+    "googleVerificationCallback_" +
+    Date.now();
 
-      console.warn(
-        "Rejected message from:",
-        event.origin
+
+  /*
+   * Create the callback function
+   * on the GitHub page.
+   */
+  window[callbackName] =
+    function(result) {
+
+      console.log(
+        "Apps Script verification result:",
+        result
       );
 
-      return;
 
-    }
-
-
-    const data =
-      event.data;
+      /*
+       * Remove the temporary callback.
+       */
+      delete window[callbackName];
 
 
-    if (
-      !data ||
-      data.type !==
-        "GOOGLE_VERIFICATION_RESULT"
-    ) {
+      /*
+       * Remove the script element.
+       */
+      if (scriptElement) {
 
-      return;
+        scriptElement.remove();
 
-    }
-
-
-    console.log(
-      "Apps Script verification result:",
-      data.result
-    );
+      }
 
 
-    const result =
-      data.result;
+      if (
+        !result ||
+        !result.success
+      ) {
+
+        showResult(
+
+          result &&
+          result.message
+
+            ? result.message
+
+            : "Google account verification failed.",
+
+          "error"
+
+        );
+
+        return;
+
+      }
 
 
-    if (
-      !result ||
-      !result.success
-    ) {
-
+      /*
+       * Verification succeeded.
+       */
       showResult(
 
-        result &&
-        result.message
+        "Google account successfully verified. Your account is ready for voucher claiming.",
 
-          ? result.message
-
-          : "Google account verification failed.",
-
-        "error"
+        "success"
 
       );
 
-      return;
 
-    }
-
-
-    showResult(
-
-      "Google account successfully verified. Your account is ready for voucher claiming.",
-
-      "success"
-
-    );
+      /*
+       * Keep verified account information
+       * available for the next step.
+       */
+      window.verifiedGoogleAccount =
+        result;
 
 
-    console.log(
-      "Verified Google email:",
-      result.email
-    );
+      console.log(
+        "Verified Google email:",
+        result.email
+      );
+
+    };
 
 
-    /*
-     * Keep the verified result available
-     * for the next claiming step.
-     */
-    window.verifiedGoogleAccount = result;
+  /*
+   * Create script element.
+   *
+   * JSONP works because the browser permits
+   * cross-origin <script> loading.
+   */
+  const scriptElement =
+    document.createElement("script");
 
-  }
-);
+
+  scriptElement.src =
+    APPS_SCRIPT_URL +
+    "?action=verify" +
+    "&token=" +
+    encodeURIComponent(idToken) +
+    "&callback=" +
+    encodeURIComponent(callbackName);
+
+
+  /*
+   * Handle connection failure.
+   */
+  scriptElement.onerror =
+    function() {
+
+      console.error(
+        "Unable to load Apps Script verification endpoint."
+      );
+
+
+      delete window[callbackName];
+
+
+      showResult(
+        "Unable to connect to the Wi-Fi Voucher System. Please try again.",
+        "error"
+      );
+
+
+      scriptElement.remove();
+
+    };
+
+
+  document.body.appendChild(
+    scriptElement
+  );
+
+
+  console.log(
+    "Apps Script verification request sent."
+  );
+
+}
 
 
 /*
@@ -328,5 +341,6 @@ function showResult(
 }
 
 </script>
+
 </body>
 </html>
