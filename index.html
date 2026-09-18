@@ -109,18 +109,37 @@
 const APPS_SCRIPT_URL =
   "https://script.google.com/macros/s/AKfycbwChbGU-uAf_10ybS2bh3KbBCXLkhM5BE6Xi75RyklPAUP2lb3peoe7GxnTCinrF-_C5g/exec";
 
+
 let googleCredential = null;
 
 
 /*
- * This function is called automatically
- * after successful Google Sign-In.
+ * Create hidden Apps Script bridge.
+ */
+const bridgeFrame =
+  document.createElement("iframe");
+
+bridgeFrame.src =
+  APPS_SCRIPT_URL + "?action=verify";
+
+bridgeFrame.style.display = "none";
+
+document.body.appendChild(bridgeFrame);
+
+
+/*
+ * Google Sign-In callback.
  */
 function handleGoogleCredential(response) {
 
-  console.log("Google Sign-In callback fired.");
+  console.log(
+    "Google Sign-In callback fired."
+  );
 
-  googleCredential = response.credential;
+
+  googleCredential =
+    response.credential;
+
 
   if (!googleCredential) {
 
@@ -132,60 +151,78 @@ function handleGoogleCredential(response) {
     return;
   }
 
+
+  console.log(
+    "Google ID token received."
+  );
+
+
   showResult(
     "Google account signed in. Verifying your account...",
     "success"
   );
 
-  console.log("Google ID token received.");
 
-  verifyWithAppsScript(googleCredential);
+  /*
+   * Send token to Apps Script bridge.
+   */
+  bridgeFrame.contentWindow.postMessage(
+    {
+      type: "VERIFY_GOOGLE_TOKEN",
+      idToken: googleCredential
+    },
+    "https://script.google.com"
+  );
+
 }
 
 
 /*
- * Send the Google ID token to the
- * Apps Script backend.
+ * Receive result from Apps Script.
  */
-async function verifyWithAppsScript(idToken) {
+window.addEventListener(
+  "message",
+  function(event) {
 
-  console.log("Sending Google token to Apps Script...");
+    /*
+     * Only accept responses from Apps Script.
+     */
+    if (
+      event.origin !==
+      "https://script.google.com"
+    ) {
+      return;
+    }
 
-  try {
 
-    const response = await fetch(
-      APPS_SCRIPT_URL,
-      {
-        method: "POST",
+    const data = event.data;
 
-        headers: {
-          "Content-Type": "text/plain;charset=utf-8"
-        },
 
-        body: JSON.stringify({
-          idToken: idToken
-        })
-      }
-    );
+    if (
+      !data ||
+      data.type !==
+      "GOOGLE_VERIFICATION_RESULT"
+    ) {
+      return;
+    }
+
 
     console.log(
-      "Apps Script HTTP status:",
-      response.status
-    );
-
-    const result = await response.json();
-
-    console.log(
-      "Apps Script response:",
-      result
+      "Apps Script verification result:",
+      data.result
     );
 
 
-    if (!result.success) {
+    const result =
+      data.result;
+
+
+    if (!result || !result.success) {
 
       showResult(
-        result.message ||
-        "Google account verification failed.",
+        result && result.message
+          ? result.message
+          : "Google account verification failed.",
         "error"
       );
 
@@ -193,10 +230,14 @@ async function verifyWithAppsScript(idToken) {
     }
 
 
+    /*
+     * Success.
+     */
     showResult(
       "Google account successfully verified. Your account is ready for voucher claiming.",
       "success"
     );
+
 
     console.log(
       "Verified Google email:",
@@ -204,37 +245,28 @@ async function verifyWithAppsScript(idToken) {
     );
 
   }
-
-  catch (error) {
-
-    console.error(
-      "Backend connection error:",
-      error
-    );
-
-    showResult(
-      "Unable to connect to the Wi-Fi Voucher System. Please try again.",
-      "error"
-    );
-
-  }
-
-}
+);
 
 
 /*
- * Display notification on the page.
+ * Display notification.
  */
 function showResult(message, type) {
 
   const result =
     document.getElementById("result");
 
-  result.textContent = message;
 
-  result.className = type;
+  result.textContent =
+    message;
 
-  result.style.display = "block";
+
+  result.className =
+    type;
+
+
+  result.style.display =
+    "block";
 
 }
 
