@@ -112,23 +112,11 @@ const APPS_SCRIPT_URL =
 
 let googleCredential = null;
 
-
-/*
- * Create hidden Apps Script bridge.
- */
-const bridgeFrame =
-  document.createElement("iframe");
-
-bridgeFrame.src =
-  APPS_SCRIPT_URL + "?action=verify";
-
-bridgeFrame.style.display = "none";
-
-document.body.appendChild(bridgeFrame);
+let bridgeFrame = null;
 
 
 /*
- * Google Sign-In callback.
+ * Google Sign-In callback
  */
 function handleGoogleCredential(response) {
 
@@ -149,6 +137,7 @@ function handleGoogleCredential(response) {
     );
 
     return;
+
   }
 
 
@@ -164,21 +153,49 @@ function handleGoogleCredential(response) {
 
 
   /*
-   * Send token to Apps Script bridge.
+   * Create a fresh hidden iframe.
+   *
+   * The Google token is sent to Apps Script
+   * through the URL rather than postMessage.
    */
-  bridgeFrame.contentWindow.postMessage(
-    {
-      type: "VERIFY_GOOGLE_TOKEN",
-      idToken: googleCredential
-    },
-    "*"
+  if (bridgeFrame) {
+
+    bridgeFrame.remove();
+
+  }
+
+
+  bridgeFrame =
+    document.createElement("iframe");
+
+
+  bridgeFrame.style.display =
+    "none";
+
+
+  bridgeFrame.src =
+    APPS_SCRIPT_URL +
+    "?action=verify&token=" +
+    encodeURIComponent(
+      googleCredential
+    );
+
+
+  document.body.appendChild(
+    bridgeFrame
+  );
+
+
+  console.log(
+    "Verification bridge requested."
   );
 
 }
 
 
 /*
- * Receive result from Apps Script.
+ * Receive the verification result
+ * from the Apps Script iframe.
  */
 window.addEventListener(
   "message",
@@ -189,60 +206,81 @@ window.addEventListener(
       event.origin
     );
 
-    const data = event.data;
-
-    if (!data) {
-      return;
-    }
-
-    if (
-      data.type !==
-      "GOOGLE_VERIFICATION_RESULT"
-    ) {
-      return;
-    }
 
     /*
-     * Only accept messages from a Google
-     * Apps Script sandbox origin.
+     * Apps Script HTML runs under a
+     * googleusercontent.com sandbox origin.
      */
     if (
       !event.origin.endsWith(
         "-script.googleusercontent.com"
       )
     ) {
+
       console.warn(
         "Rejected message from:",
         event.origin
       );
 
       return;
+
     }
 
-    const result = data.result;
+
+    const data =
+      event.data;
+
+
+    if (
+      !data ||
+      data.type !==
+        "GOOGLE_VERIFICATION_RESULT"
+    ) {
+
+      return;
+
+    }
+
 
     console.log(
       "Apps Script verification result:",
-      result
+      data.result
     );
 
 
-    if (!result || !result.success) {
+    const result =
+      data.result;
+
+
+    if (
+      !result ||
+      !result.success
+    ) {
 
       showResult(
-        result && result.message
+
+        result &&
+        result.message
+
           ? result.message
+
           : "Google account verification failed.",
+
         "error"
+
       );
 
       return;
+
     }
 
 
     showResult(
+
       "Google account successfully verified. Your account is ready for voucher claiming.",
+
       "success"
+
     );
 
 
@@ -251,16 +289,29 @@ window.addEventListener(
       result.email
     );
 
+
+    /*
+     * Keep the verified result available
+     * for the next claiming step.
+     */
+    window.verifiedGoogleAccount = result;
+
   }
 );
+
 
 /*
  * Display notification.
  */
-function showResult(message, type) {
+function showResult(
+  message,
+  type
+) {
 
   const result =
-    document.getElementById("result");
+    document.getElementById(
+      "result"
+    );
 
 
   result.textContent =
@@ -277,6 +328,5 @@ function showResult(message, type) {
 }
 
 </script>
-
 </body>
 </html>
