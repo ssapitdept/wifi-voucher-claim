@@ -171,7 +171,7 @@ function handleGoogleCredential(response) {
       type: "VERIFY_GOOGLE_TOKEN",
       idToken: googleCredential
     },
-    "https://script.google.com"
+    "*"
   );
 
 }
@@ -184,37 +184,47 @@ window.addEventListener(
   "message",
   function(event) {
 
-    /*
-     * Only accept responses from Apps Script.
-     */
-    if (
-      event.origin !==
-      "https://script.google.com"
-    ) {
-      return;
-    }
-
+    console.log(
+      "Message received from:",
+      event.origin
+    );
 
     const data = event.data;
 
+    if (!data) {
+      return;
+    }
 
     if (
-      !data ||
       data.type !==
       "GOOGLE_VERIFICATION_RESULT"
     ) {
       return;
     }
 
+    /*
+     * Only accept messages from a Google
+     * Apps Script sandbox origin.
+     */
+    if (
+      !event.origin.endsWith(
+        "-script.googleusercontent.com"
+      )
+    ) {
+      console.warn(
+        "Rejected message from:",
+        event.origin
+      );
+
+      return;
+    }
+
+    const result = data.result;
 
     console.log(
       "Apps Script verification result:",
-      data.result
+      result
     );
-
-
-    const result =
-      data.result;
 
 
     if (!result || !result.success) {
@@ -230,9 +240,6 @@ window.addEventListener(
     }
 
 
-    /*
-     * Success.
-     */
     showResult(
       "Google account successfully verified. Your account is ready for voucher claiming.",
       "success"
@@ -246,7 +253,6 @@ window.addEventListener(
 
   }
 );
-
 
 /*
  * Display notification.
